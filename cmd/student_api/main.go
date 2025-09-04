@@ -1,8 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"github.com/SonaPrajapati/GO_apiTesing/internal/config"
+)
 
 func main() {
 
-	fmt.Println("This is Student API project")
+	// load config
+	cfg := config.MustLoad()
+
+	// setup database
+	// setup server
+	// setup router
 }
