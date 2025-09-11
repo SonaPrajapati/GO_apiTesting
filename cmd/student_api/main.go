@@ -12,6 +12,7 @@ import (
 
 	"github.com/SonaPrajapati/GO_apiTesing/internal/config"
 	"github.com/SonaPrajapati/GO_apiTesing/internal/config/http/handlers/student"
+	"github.com/SonaPrajapati/GO_apiTesing/internal/storage/sqlite"
 )
 
 func main() {
@@ -20,10 +21,18 @@ func main() {
 	cfg := config.MustLoad()
 
 	// setup database
+
+	storage, err := sqlite.New(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	slog.Info("storage initialized", slog.String("env", cfg.Env), slog.String("version", "1.0.0"))
+
 	// setup router
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /api/students", student.New())
+	router.HandleFunc("POST /api/students", student.New(storage))
 
 	// setup server
 
@@ -54,7 +63,7 @@ func main() {
 	defer cancel()
 
 	// gracefull shutdown
-	err := server.Shutdown(ctx)
+	err = server.Shutdown(ctx)
 	if err != nil {
 		slog.Error("failed to shutdown server", slog.String("error", err.Error()))
 	}

@@ -1,3 +1,5 @@
+// cmd:  go run .\cmd\student_api\main.go -config config/local.yaml
+
 package student
 
 import (
@@ -8,12 +10,14 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/SonaPrajapati/GO_apiTesing/internal/storage"
 	"github.com/SonaPrajapati/GO_apiTesing/internal/types"
 	"github.com/SonaPrajapati/GO_apiTesing/internal/utils/response"
 	"github.com/go-playground/validator/v10"
+	// "golang.s/x/mod/sumdb/storage"
 )
 
-func New() http.HandlerFunc {
+func New(storage storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		slog.Info("creating a student")
 
@@ -37,6 +41,19 @@ func New() http.HandlerFunc {
 			response.WriteJson(w, http.StatusBadRequest, response.ValidationError(validationErrs))
 		}
 
-		response.WriteJson(w, http.StatusCreated, map[string]string{"success": "OK"})
+		lastId, err := storage.CreateStudent(
+			student.Name,
+			student.Email,
+			student.Age,
+		)
+		// fmt.Printf("err: %+v\n", err)
+		slog.Info("user created successfully", slog.String("userId", fmt.Sprint(lastId)))
+
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		response.WriteJson(w, http.StatusCreated, map[string]int64{"id": lastId})
 	}
 }
