@@ -1,3 +1,4 @@
+// cmd:  go run cmd/student_api/main.go -config config/local.yaml
 // cmd:  go run .\cmd\student_api\main.go -config config/local.yaml
 
 package student
